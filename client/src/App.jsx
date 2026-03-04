@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PaymentForm, CreditCard } from 'react-square-web-payments-sdk';
+import PerfectGameLogo from './assets/PerfectGame_logo_web-final.jpg';
 
 // Vite exposes env vars on import.meta.env with VITE_ prefix
 const appId = import.meta.env.VITE_SQUARE_APP_ID;
@@ -12,8 +13,20 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  const MIN_AMOUNT = 10;
+  const MAX_AMOUNT = 930;
+  
+  const isAmountValid = () => {
+    const value = Number(amount);
+    return !isNaN(value) && value >= MIN_AMOUNT && value <= MAX_AMOUNT;
+  };
 
   const handlePayment = async (tokenResult) => {
+	if (!isAmountValid()) {
+      setError(`Amount must be between $${MIN_AMOUNT} and $${MAX_AMOUNT}.`);
+      return;
+    }
     setLoading(true);
     setError('');
     setResult(null);
@@ -48,84 +61,84 @@ function App() {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '40px auto', fontFamily: 'sans-serif' }}>
-      <h2>Test Square Payment (Sandbox)</h2>
+    <div className="app-root">
+      <div className="payment-card">
+	    <img 
+        src={PerfectGameLogo} 
+        alt="Perfect Game Bowling" 
+        className="logo"
+        width="200"
+        />
+		
+        <h2>League Payment (Sandbox)</h2>
 
-      <div style={{ marginBottom: 12 }}>
-        <label>
-          Name:<br />
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={{ width: '100%', padding: 8 }}
-            placeholder="Bowler name"
-          />
-        </label>
-      </div>
-
-      <div style={{ marginBottom: 12 }}>
-        <label>
-          Amount (USD):<br />
-          <input
-            type="number"
-            min="1"
-            step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            style={{ width: '100%', padding: 8 }}
-            placeholder="e.g. 10.00"
-          />
-        </label>
-      </div>
-
-	<PaymentForm
-	  applicationId={appId}
-	  locationId={locationId}
-	  cardTokenizeResponseReceived={async (token, buyer) => {
-		await handlePayment(token);
-	  }}
-	  createPaymentRequest={() => ({
-		countryCode: 'US',
-		currencyCode: 'USD',
-		total: {
-		  amount: amount || '1.00',
-		  label: 'Test Payment',
-		},
-	  })}
-	>
-	  <CreditCard />
-	</PaymentForm>
-
-      <button
-        onClick={() => {
-          const button = document.querySelector(
-            '.sq-credit-card .sq-payment-button'
-          );
-          if (button) button.click();
-        }}
-        disabled={!amount || loading}
-        style={{ marginTop: 16, padding: '8px 16px' }}
-      >
-        {loading ? 'Processing...' : 'Pay Now'}
-      </button>
-
-      {error && (
-        <div style={{ marginTop: 16, color: 'red' }}>
-          Error: {error}
+        <div className="field">
+          <label>
+            Name
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Bowler name"
+            />
+          </label>
         </div>
-      )}
 
-      {result && (
-        <div style={{ marginTop: 16, padding: 10, border: '1px solid #ccc' }}>
-        <h4>Payment Result</h4>
-          <div>Payment ID: {result.id}</div>
-          <div>Status: {result.status}</div>
-          <div>
-            Amount: {result.amount / 100} {result.currency}
+        <div className="field">
+          <label>
+            Amount (USD)
+            <input
+              type="number"
+              min={MIN_AMOUNT}
+              max={MAX_AMOUNT}
+              step="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="e.g. 15.00"
+            />
+          </label>
+          <small>
+            Min ${MIN_AMOUNT}, Max ${MAX_AMOUNT}
+          </small>
+        </div>
+
+        <PaymentForm
+          applicationId={appId}
+          locationId={locationId}
+          cardTokenizeResponseReceived={async (token, buyer) => {
+            await handlePayment(token);
+          }}
+          createPaymentRequest={() => ({
+            countryCode: 'US',
+            currencyCode: 'USD',
+            total: {
+              amount: isAmountValid() ? amount || '10.00' : '10.00',
+              label: 'League Payment',
+            },
+          })}
+        >
+          <CreditCard />
+        </PaymentForm>
+
+        {loading && <div className="info">Processing payment…</div>}
+
+        {error && (
+          <div className="error">
+            {error}
           </div>
-        </div>
-      )}
+        )}
+
+        {result && (
+          <div className="result">
+            <h4>Payment Result</h4>
+            <div>Payment ID: {result.id}</div>
+            <div>Status: {result.status}</div>
+            <div>
+              Amount: {result.amount / 100} {result.currency}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
