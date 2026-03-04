@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PaymentForm, CreditCard } from 'react-square-web-payments-sdk';
-import PerfectGameLogo from './assets/PerfectGame_logo_web-final.jpg';
+import PerfectGameLogo from './assets/PerfectGame_logo_web-final.png';
 
 // Vite exposes env vars on import.meta.env with VITE_ prefix
 const appId = import.meta.env.VITE_SQUARE_APP_ID;
