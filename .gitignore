@@ -1,0 +1,19 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Vite
+.vite/
+
+# Logs
+logs/
+*.log
